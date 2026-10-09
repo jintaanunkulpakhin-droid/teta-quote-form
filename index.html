@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ขอใบเสนอราคา · TETA INTERTRADE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+  :root {
+    --ink: #111111; --yellow: #FFE600; --bg: #F4F4F2; --card: #FFFFFF; --muted: #6B6B6B;
+    --line: #E2E2DE; --error: #C62828; --ok: #1B7F3B;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Sarabun', system-ui, sans-serif; font-size: 16px; }
+  header { background: var(--ink); color: #fff; padding: 14px 16px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 5; }
+  header .dot { width: 30px; height: 30px; border-radius: 50%; background: var(--yellow); display: grid; place-items: center; color: var(--ink); font-weight: 700; }
+  header h1 { margin: 0; font-size: 18px; font-weight: 700; }
+  header small { display: block; color: #BDBDBD; font-weight: 400; font-size: 13px; }
+  main { padding: 12px 12px 120px; max-width: 560px; margin: 0 auto; }
+  section { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid var(--line); }
+  h2 { font-size: 16px; margin: 0 0 10px; display: flex; justify-content: space-between; align-items: baseline; }
+  h2 .count { font-size: 13px; color: var(--muted); font-weight: 400; }
+  label { display: block; font-size: 14px; font-weight: 600; margin: 10px 0 4px; }
+  label .req { color: var(--error); }
+  input, select, textarea { width: 100%; font: inherit; padding: 11px 12px; border: 1px solid #CFCFCA; border-radius: 10px; background: #fff; color: var(--ink); }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--yellow); border-color: var(--ink); }
+  textarea { min-height: 70px; resize: vertical; }
+  .item { border-bottom: 1px solid var(--line); padding: 10px 0; }
+  .item:last-child { border-bottom: 0; }
+  .item .name { font-weight: 600; font-size: 15px; line-height: 1.35; display: flex; gap: 8px; }
+  .item .name span { flex: 1; }
+  .item .cat { font-size: 12px; color: var(--muted); }
+  .row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+  .stepper { display: flex; align-items: center; border: 1px solid #CFCFCA; border-radius: 10px; overflow: hidden; }
+  .stepper button { width: 42px; height: 42px; border: 0; background: #F0F0EC; font-size: 22px; color: var(--ink); }
+  .stepper input { width: 76px; border: 0; border-radius: 0; text-align: center; padding: 10px 4px; }
+  .row select { width: auto; flex: 1; padding: 10px; }
+  .remove { border: 0; background: none; color: var(--error); font-size: 14px; padding: 4px 6px; flex: 0 0 auto; }
+  .empty { color: var(--muted); font-size: 14px; padding: 6px 0; }
+  .search { position: relative; }
+  .results { list-style: none; margin: 4px 0 0; padding: 0; border: 1px solid var(--line); border-radius: 10px; max-height: 260px; overflow-y: auto; background: #fff; }
+  .results li { padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .results li:last-child { border-bottom: 0; }
+  .results li small { display: block; color: var(--muted); font-size: 12px; }
+  .results li.custom { color: var(--ink); font-weight: 600; background: #FFFBD1; }
+  .hint { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .err { color: var(--error); font-size: 13px; margin-top: 4px; min-height: 0; }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid var(--line); padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); z-index: 6; }
+  .bar button { width: 100%; max-width: 560px; display: block; margin: 0 auto; border: 0; border-radius: 12px; padding: 15px; font: inherit; font-size: 17px; font-weight: 700; background: var(--ink); color: var(--yellow); }
+  .bar button:disabled { opacity: .5; }
+  .screen { text-align: center; padding: 48px 20px; }
+  .screen .big { font-size: 48px; }
+  .screen h2 { justify-content: center; font-size: 20px; }
+  .screen p { color: var(--muted); }
+  .screen button { border: 0; border-radius: 12px; padding: 13px 22px; font: inherit; font-weight: 700; background: var(--ink); color: var(--yellow); margin-top: 10px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <div class="dot">T</div>
+  <div><h1>ขอใบเสนอราคา</h1><small>TETA INTERTRADE · ส่งครั้งเดียวจบ</small></div>
+</header>
+
+<div id="loading" class="screen"><div class="big">⏳</div><p>กำลังโหลด…</p></div>
+
+<div id="fatal" class="screen hidden"><div class="big">⚠️</div><h2>เปิดแบบฟอร์มไม่สำเร็จ</h2>
+  <p id="fatalMsg">กรุณาปิดแล้วเปิดใหม่อีกครั้ง หรือโทร 02-068-9690</p></div>
+
+<div id="done" class="screen hidden"><div class="big">✅</div><h2>ส่งคำขอเรียบร้อยแล้ว</h2>
+  <p>เลขที่ <b id="doneNo"></b><br>ทีมงานจะติดต่อกลับโดยเร็วในเวลาทำการ<br>(จันทร์–เสาร์ 09:00–17:00 น.)</p>
+  <button id="closeBtn">กลับไปที่แชท</button></div>
+
+<main id="form" class="hidden">
+  <section>
+    <h2>รายการสินค้า <span class="count" id="itemCount"></span></h2>
+    <div id="items"></div>
+    <div class="search">
+      <label for="q">➕ เพิ่มสินค้า</label>
+      <input id="q" type="search" placeholder="พิมพ์ชื่อ / รุ่น / ขนาด เช่น ลูกถ้วย 57-2" autocomplete="off">
+      <ul id="results" class="results hidden"></ul>
+    </div>
+    <div class="hint">ไม่เจอสินค้าที่ต้องการ? พิมพ์แล้วกด "เพิ่ม … (พิมพ์เอง)" ได้เลย</div>
+    <div class="err" id="itemsErr"></div>
+  </section>
+
+  <section>
+    <h2>จัดส่ง</h2>
+    <label for="province">จังหวัด <span class="req">*</span></label>
+    <select id="province"><option value="">— เลือกจังหวัด —</option></select>
+    <label for="address">สถานที่ / นิคม / หน้างาน (ถ้ามี)</label>
+    <input id="address" placeholder="เช่น นิคมอมตะนคร, ไซต์งานถนนสุขุมวิท">
+    <div class="err" id="provErr"></div>
+  </section>
+
+  <section>
+    <h2>ผู้ติดต่อ</h2>
+    <label for="name">ชื่อ / บริษัท <span class="req">*</span></label>
+    <input id="name" placeholder="เช่น สมชาย / บจก.เอบีซี" autocomplete="name">
+    <label for="phone">เบอร์โทร <span class="req">*</span></label>
+    <input id="phone" type="tel" inputmode="tel" placeholder="เช่น 081-234-5678" autocomplete="tel">
+    <label for="note">หมายเหตุ (ถ้ามี)</label>
+    <textarea id="note" placeholder="เช่น ต้องการ มอก., ต้องการภายในวันที่…, ขอใบกำกับภาษี"></textarea>
+    <div class="hint">มี BOQ / รูปรายการสินค้า? ส่งเข้ามาในแชทได้เลยหลังกดส่ง</div>
+    <div class="err" id="contactErr"></div>
+  </section>
+</main>
+
+<div class="bar hidden" id="bar"><button id="submit">✅ ส่งขอใบเสนอราคา</button></div>
+
+<script>
+// ─── settings ───────────────────────────────────────────────────────────────
+const LIFF_ID = '';  // ← LIFF ID from LINE Developers (LINE Login channel → LIFF)
+const API = 'https://script.google.com/macros/s/AKfycbzI-Heg-yHUzvGRumwbOdVvPJGHZ2zP7oy1qTfo6lOmm-gZa2ojy_obtVuIUs914DHleg/exec';
+const UNITS = ['ชิ้น', 'ตัว', 'ลูก', 'ชุด', 'เมตร', 'ม้วน', 'ต้น', 'เส้น', 'กล่อง', 'แผ่น', 'คู่', 'กก.'];
+const PROVINCES = ['กรุงเทพมหานคร','กระบี่','กาญจนบุรี','กาฬสินธุ์','กำแพงเพชร','ขอนแก่น','จันทบุรี','ฉะเชิงเทรา','ชลบุรี','ชัยนาท','ชัยภูมิ','ชุมพร','เชียงราย','เชียงใหม่','ตรัง','ตราด','ตาก','นครนายก','นครปฐม','นครพนม','นครราชสีมา','นครศรีธรรมราช','นครสวรรค์','นนทบุรี','นราธิวาส','น่าน','บึงกาฬ','บุรีรัมย์','ปทุมธานี','ประจวบคีรีขันธ์','ปราจีนบุรี','ปัตตานี','พระนครศรีอยุธยา','พะเยา','พังงา','พัทลุง','พิจิตร','พิษณุโลก','เพชรบุรี','เพชรบูรณ์','แพร่','ภูเก็ต','มหาสารคาม','มุกดาหาร','แม่ฮ่องสอน','ยโสธร','ยะลา','ร้อยเอ็ด','ระนอง','ระยอง','ราชบุรี','ลพบุรี','ลำปาง','ลำพูน','เลย','ศรีสะเกษ','สกลนคร','สงขลา','สตูล','สมุทรปราการ','สมุทรสงคราม','สมุทรสาคร','สระแก้ว','สระบุรี','สิงห์บุรี','สุโขทัย','สุพรรณบุรี','สุราษฎร์ธานี','สุรินทร์','หนองคาย','หนองบัวลำภู','อ่างทอง','อำนาจเจริญ','อุดรธานี','อุตรดิตถ์','อุทัยธานี','อุบลราชธานี'];
+const PICKUP = 'รับสินค้าเองที่บริษัท (คลองสามวา)';
+const EXPORT = 'ต่างประเทศ (ส่งออก)';
+
+// ─── state ──────────────────────────────────────────────────────────────────
+let catalog = [];
+let items = [];          // {id?, name, cat, qty, unit}
+let idToken = '';
+const $ = (id) => document.getElementById(id);
+
+function show(id) {
+  ['loading', 'fatal', 'done', 'form'].forEach((s) => $(s).classList.toggle('hidden', s !== id));
+  $('bar').classList.toggle('hidden', id !== 'form');
+}
+function fatal(msg) { if (msg) $('fatalMsg').textContent = msg; show('fatal'); }
+
+let api = async function (body) {
+  // text/plain keeps this a "simple" request, so the browser needs no CORS preflight.
+  const res = await fetch(API, { method: 'POST', body: JSON.stringify(Object.assign({ idToken }, body)) });
+  return res.json();
+};
+
+// ─── items ──────────────────────────────────────────────────────────────────
+function render() {
+  const box = $('items');
+  box.innerHTML = '';
+  $('itemCount').textContent = items.length ? items.length + ' รายการ' : '';
+  if (!items.length) {
+    box.innerHTML = '<div class="empty">ยังไม่มีสินค้า — ค้นหาแล้วกดเพิ่มด้านล่าง</div>';
+    return;
+  }
+  items.forEach((it, i) => {
+    const el = document.createElement('div');
+    el.className = 'item';
+    el.innerHTML =
+      '<div class="name"><span></span><button class="remove" aria-label="ลบ">❌ ลบ</button></div>' +
+      (it.cat ? '<div class="cat"></div>' : '') +
+      '<div class="row"><div class="stepper"><button type="button" aria-label="ลด">−</button>' +
+      '<input type="number" inputmode="decimal" min="0" step="any"><button type="button" aria-label="เพิ่ม">+</button></div>' +
+      '<select aria-label="หน่วย"></select></div>';
+    el.querySelector('.name span').textContent = (i + 1) + '. ' + it.name;
+    if (it.cat) el.querySelector('.cat').textContent = it.cat;
+    const qty = el.querySelector('input');
+    qty.value = it.qty || '';
+    qty.addEventListener('input', () => { it.qty = qty.value; });
+    const [minus, plus] = el.querySelectorAll('.stepper button');
+    minus.onclick = () => { it.qty = Math.max(0, (Number(it.qty) || 0) - 1); qty.value = it.qty || ''; };
+    plus.onclick = () => { it.qty = (Number(it.qty) || 0) + 1; qty.value = it.qty; };
+    const unit = el.querySelector('select');
+    (UNITS.includes(it.unit) ? UNITS : [it.unit].concat(UNITS)).forEach((u) => unit.add(new Option(u, u)));
+    unit.value = it.unit;
+    unit.onchange = () => { it.unit = unit.value; };
+    el.querySelector('.remove').onclick = () => { items.splice(i, 1); render(); };
+    box.appendChild(el);
+  });
+}
+
+function addItem(p) {
+  if (p.id && items.some((x) => x.id === p.id)) return;
+  items.push({ id: p.id || '', name: p.t, cat: p.c || '', qty: '', unit: p.u || 'ชิ้น' });
+  render();
+  $('q').value = '';
+  $('results').classList.add('hidden');
+  const last = $('items').lastElementChild;
+  if (last) { last.scrollIntoView({ block: 'center' }); last.querySelector('input').focus(); }
+}
+
+// ─── search ─────────────────────────────────────────────────────────────────
+const norm = (s) => String(s).toLowerCase().replace(/\s+/g, '');
+function search(q) {
+  const toks = q.toLowerCase().split(/\s+/).filter(Boolean).map(norm);
+  if (!toks.length) return [];
+  return catalog.filter((p) => { const h = norm(p.t + ' ' + p.c); return toks.every((t) => h.includes(t)); }).slice(0, 8);
+}
+$('q').addEventListener('input', () => {
+  const q = $('q').value.trim();
+  const ul = $('results');
+  ul.innerHTML = '';
+  if (!q) { ul.classList.add('hidden'); return; }
+  search(q).forEach((p) => {
+    const li = document.createElement('li');
+    li.innerHTML = '<span></span><small></small>';
+    li.querySelector('span').textContent = p.t;
+    li.querySelector('small').textContent = p.c;
+    li.onclick = () => addItem(p);
+    ul.appendChild(li);
+  });
+  const custom = document.createElement('li');
+  custom.className = 'custom';
+  custom.textContent = '➕ เพิ่ม "' + q + '" (พิมพ์เอง)';
+  custom.onclick = () => addItem({ t: q, u: 'ชิ้น' });
+  ul.appendChild(custom);
+  ul.classList.remove('hidden');
+});
+
+// ─── prefill from last request ──────────────────────────────────────────────
+function prefill(last) {
+  if (!last) return;
+  const [prov, ...rest] = String(last.loc || '').split(' / ');
+  if ([...$('province').options].some((o) => o.value === prov)) {
+    $('province').value = prov;
+    $('address').value = rest.join(' / ');
+  }
+  const contact = String(last.contact || '');
+  const m = contact.match(/(\+?66|0)[\d\-\s]{8,}\d/);
+  if (m) { $('phone').value = m[0].trim(); $('name').value = contact.replace(m[0], '').trim(); }
+  else $('name').value = contact;
+}
+
+// ─── submit ─────────────────────────────────────────────────────────────────
+function validate() {
+  let ok = true;
+  ['itemsErr', 'provErr', 'contactErr'].forEach((e) => { $(e).textContent = ''; });
+  const filled = items.filter((it) => Number(it.qty) > 0);
+  if (!items.length) { $('itemsErr').textContent = 'กรุณาเพิ่มสินค้าอย่างน้อย 1 รายการ'; ok = false; }
+  else if (filled.length < items.length) { $('itemsErr').textContent = 'กรุณาใส่จำนวนให้ครบทุกรายการ (หรือกด ❌ ลบรายการที่ไม่ต้องการ)'; ok = false; }
+  if (!$('province').value) { $('provErr').textContent = 'กรุณาเลือกจังหวัด'; ok = false; }
+  const digits = $('phone').value.replace(/[^\d+]/g, '');
+  if (!$('name').value.trim()) { $('contactErr').textContent = 'กรุณาใส่ชื่อผู้ติดต่อ'; ok = false; }
+  else if (!/(\+?66|0)\d{8,9}/.test(digits)) { $('contactErr').textContent = 'กรุณาใส่เบอร์โทรให้ถูกต้อง เช่น 081-234-5678'; ok = false; }
+  if (!ok) document.querySelector('.err:not(:empty)').scrollIntoView({ block: 'center' });
+  return ok;
+}
+
+$('submit').onclick = async () => {
+  if (!validate()) return;
+  const btn = $('submit');
+  btn.disabled = true;
+  btn.textContent = 'กำลังส่ง…';
+  try {
+    const r = await api({
+      action: 'submit',
+      items: items.map((it) => ({ id: it.id, name: it.name, qty: Number(it.qty), unit: it.unit })),
+      province: $('province').value, address: $('address').value,
+      name: $('name').value, phone: $('phone').value, note: $('note').value,
+    });
+    if (!r.ok) {
+      const msg = { login: 'หมดเวลาเข้าสู่ระบบ กรุณาปิดแล้วเปิดแบบฟอร์มใหม่', items: 'กรุณาตรวจสอบรายการสินค้า',
+        contact: 'กรุณาตรวจสอบชื่อและเบอร์โทร', province: 'กรุณาเลือกจังหวัด' }[r.error] || 'ส่งไม่สำเร็จ กรุณาลองใหม่ หรือโทร 02-068-9690';
+      alert(msg);
+      return;
+    }
+    $('doneNo').textContent = r.no;
+    show('done');
+    if (liff.isInClient()) {
+      // Puts a confirmation line in the chat; the bot answers it with a thank-you.
+      liff.sendMessages([{ type: 'text', text: '✅ ส่งคำขอใบเสนอราคาแล้ว เลขที่ ' + r.no }]).catch(() => {});
+    }
+  } catch (e) {
+    alert('ส่งไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✅ ส่งขอใบเสนอราคา';
+  }
+};
+$('closeBtn').onclick = () => { if (liff.isInClient()) liff.closeWindow(); else window.close(); };
+
+// ─── start ──────────────────────────────────────────────────────────────────
+// Layout check outside LINE (local file or ?preview): sample data, nothing is sent.
+const PREVIEW = new URLSearchParams(location.search).has('preview') || /^(file|data):$/.test(location.protocol);
+
+(async function start() {
+  [PICKUP].concat(PROVINCES, [EXPORT]).forEach((p) => $('province').add(new Option(p, p)));
+  if (PREVIEW) {
+    window.liff = { isInClient: () => false, closeWindow() {}, sendMessages: async () => {} };
+    catalog = [
+      { id: '1', t: 'ลูกถ้วยไลน์โพสท์ (LINEPOST Insulator) มอก.', c: 'ลูกถ้วยไฟฟ้า', u: 'ลูก' },
+      { id: '2', t: 'CV 25KV 100%', c: 'สายไฟทองแดง', u: 'เมตร' },
+      { id: '3', t: 'กราวด์ร็อดทองแดงแท้ 99%', c: 'ระบบสายดิน', u: 'ต้น' },
+      { id: '4', t: 'ข้อต่อท่อบาง EMT ( คุปปิ้ง )', c: 'ท่อร้อยสายไฟและข้อต่อ', u: 'ชิ้น' },
+    ];
+    items = catalog.slice(0, 2).map((p) => ({ id: p.id, name: p.t, cat: p.c, qty: '', unit: p.u }));
+    prefill({ loc: 'ชลบุรี / นิคมอมตะนคร', contact: 'สมชาย / บจก.เอบีซี 081-234-5678' });
+    api = async (b) => ({ ok: true, no: 'Q261009-000' });
+    render();
+    show('form');
+    return;
+  }
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
+    idToken = liff.getIDToken();
+    const [cat, me] = await Promise.all([
+      fetch(API + '?action=catalog').then((r) => r.json()),
+      api({ action: 'init' }),
+    ]);
+    if (!me.ok) return fatal('ยืนยันตัวตนไม่สำเร็จ กรุณาปิดแล้วเปิดแบบฟอร์มใหม่');
+    catalog = cat.products || [];
+    const ids = (new URLSearchParams(location.search).get('items') || '').split(',').filter(Boolean);
+    ids.forEach((id) => { const p = catalog.find((x) => x.id === id); if (p) items.push({ id: p.id, name: p.t, cat: p.c, qty: '', unit: p.u }); });
+    prefill(me.last);
+    if (!me.last && me.name) $('name').value = me.name;
+    render();
+    show('form');
+  } catch (e) {
+    fatal('เปิดแบบฟอร์มไม่สำเร็จ (' + (e && e.message ? e.message : e) + ')');
+  }
+})();
+</script>
+</body>
+</html>
