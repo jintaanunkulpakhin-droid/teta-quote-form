@@ -41,7 +41,12 @@
   .empty { color: var(--muted); font-size: 14px; padding: 6px 0; }
   .search { position: relative; }
   .results { list-style: none; margin: 4px 0 0; padding: 0; border: 1px solid var(--line); border-radius: 10px; max-height: 260px; overflow-y: auto; background: #fff; }
-  .results li { padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .results li { padding: 8px 10px; border-bottom: 1px solid var(--line); font-size: 15px; display: flex; gap: 10px; align-items: center; }
+  .results li .txt { flex: 1; min-width: 0; }
+  .thumb { width: 52px; height: 52px; flex: 0 0 52px; object-fit: contain; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+  .thumb.none { display: grid; place-items: center; color: #BDBDBD; font-size: 22px; }
+  .item .head { display: flex; gap: 10px; align-items: flex-start; }
+  .item .head .meta { flex: 1; min-width: 0; }
   .results li:last-child { border-bottom: 0; }
   .results li small { display: block; color: var(--muted); font-size: 12px; }
   .results li.custom { color: var(--ink); font-weight: 600; background: #FFFBD1; }
@@ -150,11 +155,13 @@ function render() {
     const el = document.createElement('div');
     el.className = 'item';
     el.innerHTML =
+      '<div class="head"><span class="ph"></span><div class="meta">' +
       '<div class="name"><span></span><button class="remove" aria-label="ลบ">❌ ลบ</button></div>' +
-      (it.cat ? '<div class="cat"></div>' : '') +
+      (it.cat ? '<div class="cat"></div>' : '') + '</div></div>' +
       '<div class="row"><div class="stepper"><button type="button" aria-label="ลด">−</button>' +
       '<input type="number" inputmode="decimal" min="0" step="any"><button type="button" aria-label="เพิ่ม">+</button></div>' +
       '<select aria-label="หน่วย"></select></div>';
+    el.querySelector('.ph').replaceWith(thumbEl(it.img));
     el.querySelector('.name span').textContent = (i + 1) + '. ' + it.name;
     if (it.cat) el.querySelector('.cat').textContent = it.cat;
     const qty = el.querySelector('input');
@@ -172,9 +179,28 @@ function render() {
   });
 }
 
+const toItem = (p) => ({ id: p.id || '', name: p.t, cat: p.c || '', img: p.i || '', qty: '', unit: p.u || 'ชิ้น' });
+
+// Small WordPress thumbnail (~2 KB) first; the full photo only if no thumbnail exists.
+function thumbEl(url) {
+  if (!url) {
+    const d = document.createElement('div');
+    d.className = 'thumb none';
+    d.textContent = '📦';
+    return d;
+  }
+  const img = document.createElement('img');
+  img.className = 'thumb';
+  img.loading = 'lazy';
+  img.alt = '';
+  img.src = url.replace(/(\.(png|jpe?g|webp))$/i, '-150x150$1');
+  img.onerror = () => { img.onerror = null; img.src = url; };
+  return img;
+}
+
 function addItem(p) {
   if (p.id && items.some((x) => x.id === p.id)) return;
-  items.push({ id: p.id || '', name: p.t, cat: p.c || '', qty: '', unit: p.u || 'ชิ้น' });
+  items.push(toItem(p));
   render();
   $('q').value = '';
   $('results').classList.add('hidden');
@@ -196,7 +222,8 @@ $('q').addEventListener('input', () => {
   if (!q) { ul.classList.add('hidden'); return; }
   search(q).forEach((p) => {
     const li = document.createElement('li');
-    li.innerHTML = '<span></span><small></small>';
+    li.innerHTML = '<div class="txt"><span></span><small></small></div>';
+    li.prepend(thumbEl(p.i));
     li.querySelector('span').textContent = p.t;
     li.querySelector('small').textContent = p.c;
     li.onclick = () => addItem(p);
@@ -281,12 +308,12 @@ const PREVIEW = new URLSearchParams(location.search).has('preview') || /^(file|d
   if (PREVIEW) {
     window.liff = { isInClient: () => false, closeWindow() {}, sendMessages: async () => {} };
     catalog = [
-      { id: '1', t: 'ลูกถ้วยไลน์โพสท์ (LINEPOST Insulator) มอก.', c: 'ลูกถ้วยไฟฟ้า', u: 'ลูก' },
-      { id: '2', t: 'CV 25KV 100%', c: 'สายไฟทองแดง', u: 'เมตร' },
-      { id: '3', t: 'กราวด์ร็อดทองแดงแท้ 99%', c: 'ระบบสายดิน', u: 'ต้น' },
-      { id: '4', t: 'ข้อต่อท่อบาง EMT ( คุปปิ้ง )', c: 'ท่อร้อยสายไฟและข้อต่อ', u: 'ชิ้น' },
+      { id: '1', t: 'ลูกถ้วยไลน์โพสท์ (LINEPOST Insulator) มอก.', c: 'ลูกถ้วยไฟฟ้า', u: 'ลูก', i: 'https://www.tetaintergroup.com/wp-content/uploads/2022/06/LINEPOST-57-2L-SPI-2.png' },
+      { id: '2', t: 'CV-AWA 18/30(36)KV', c: 'สายไฟทองแดง', u: 'เมตร', i: 'https://www.tetaintergroup.com/wp-content/uploads/2022/10/CV-AWA-18.30-36KV-1C.png' },
+      { id: '3', t: 'VAF', c: 'สายไฟทองแดง', u: 'เมตร', i: 'https://www.tetaintergroup.com/wp-content/uploads/2022/10/VAF-G.png' },
+      { id: '4', t: 'ข้อต่อท่อบาง EMT ( คุปปิ้ง )', c: 'ท่อร้อยสายไฟและข้อต่อ', u: 'ชิ้น', i: '' },
     ];
-    items = catalog.slice(0, 2).map((p) => ({ id: p.id, name: p.t, cat: p.c, qty: '', unit: p.u }));
+    items = catalog.slice(0, 2).map(toItem);
     prefill({ loc: 'ชลบุรี / นิคมอมตะนคร', contact: 'สมชาย / บจก.เอบีซี 081-234-5678' });
     api = async (b) => ({ ok: true, no: 'Q261009-000' });
     render();
@@ -304,7 +331,7 @@ const PREVIEW = new URLSearchParams(location.search).has('preview') || /^(file|d
     if (!me.ok) return fatal('ยืนยันตัวตนไม่สำเร็จ กรุณาปิดแล้วเปิดแบบฟอร์มใหม่');
     catalog = cat.products || [];
     const ids = (new URLSearchParams(location.search).get('items') || '').split(',').filter(Boolean);
-    ids.forEach((id) => { const p = catalog.find((x) => x.id === id); if (p) items.push({ id: p.id, name: p.t, cat: p.c, qty: '', unit: p.u }); });
+    ids.forEach((id) => { const p = catalog.find((x) => x.id === id); if (p) items.push(toItem(p)); });
     prefill(me.last);
     if (!me.last && me.name) $('name').value = me.name;
     render();
