@@ -128,6 +128,7 @@ const EXPORT = 'ต่างประเทศ (ส่งออก)';
 let catalog = [];
 let items = [];          // {id?, name, cat, qty, unit}
 let idToken = '';
+let SOURCE = '';         // where the customer came from (?src=…), saved into the lead note
 const $ = (id) => document.getElementById(id);
 
 function show(id) {
@@ -276,7 +277,8 @@ $('submit').onclick = async () => {
       action: 'submit',
       items: items.map((it) => ({ id: it.id, name: it.name, qty: Number(it.qty), unit: it.unit })),
       province: $('province').value, address: $('address').value,
-      name: $('name').value, phone: $('phone').value, note: $('note').value,
+      name: $('name').value, phone: $('phone').value,
+      note: (SOURCE ? '[มาจาก: ' + SOURCE + '] ' : '') + $('note').value,
     });
     if (!r.ok) {
       const msg = { login: 'หมดเวลาเข้าสู่ระบบ กรุณาปิดแล้วเปิดแบบฟอร์มใหม่', items: 'กรุณาตรวจสอบรายการสินค้า',
@@ -330,7 +332,9 @@ const PREVIEW = new URLSearchParams(location.search).has('preview') || /^(file|d
     ]);
     if (!me.ok) return fatal('ยืนยันตัวตนไม่สำเร็จ กรุณาปิดแล้วเปิดแบบฟอร์มใหม่');
     catalog = cat.products || [];
-    const ids = (new URLSearchParams(location.search).get('items') || '').split(',').filter(Boolean);
+    const qs = new URLSearchParams(location.search);
+    SOURCE = (qs.get('src') || '').replace(/[^\w-]/g, '').slice(0, 30); // e.g. "shopee-card" from the package QR
+    const ids = (qs.get('items') || '').split(',').filter(Boolean);
     ids.forEach((id) => { const p = catalog.find((x) => x.id === id); if (p) items.push(toItem(p)); });
     prefill(me.last);
     if (!me.last && me.name) $('name').value = me.name;
