@@ -64,6 +64,7 @@
 .pdf{display:inline-block;background:#06C755;color:#fff;font-weight:bold;padding:12px 20px;border-radius:10px;text-decoration:none;margin:6px 0}
 .small{font-size:13px;color:#666}
 .price{color:#06A04A;font-weight:bold}
+.ask{color:#B26A00;font-weight:bold}
 select:disabled{background:#f3f3f3;color:#333}
 </style>
 </head>
@@ -166,13 +167,14 @@ function render() {
     el.innerHTML =
       '<div class="head"><span class="ph"></span><div class="meta">' +
       '<div class="name"><span></span><button class="remove" aria-label="ลบ">❌ ลบ</button></div>' +
-      (it.cat || it.price ? '<div class="cat"></div>' : '') + '</div></div>' +
+      '<div class="cat"></div></div></div>' +
       '<div class="row"><div class="stepper"><button type="button" aria-label="ลด">−</button>' +
       '<input type="number" inputmode="decimal" min="0" step="any"><button type="button" aria-label="เพิ่ม">+</button></div>' +
       '<select aria-label="หน่วย"></select></div>';
     el.querySelector('.ph').replaceWith(thumbEl(it.img));
     el.querySelector('.name span').textContent = (i + 1) + '. ' + it.name;
     if (it.price) el.querySelector('.cat').innerHTML = '<span class="price">฿' + baht(it.price) + ' / ' + it.unit + '</span>' + (it.cat ? ' · ' : '');
+    else el.querySelector('.cat') && (el.querySelector('.cat').innerHTML = '<span class="ask">สอบถามราคา</span>' + (it.cat ? ' · ' : ''));
     if (it.cat) el.querySelector('.cat').append(it.cat);
     const qty = el.querySelector('input');
     qty.value = it.qty || '';
@@ -225,7 +227,8 @@ const norm = (s) => String(s).toLowerCase().replace(/\s+/g, '');
 function search(q) {
   const toks = q.toLowerCase().split(/\s+/).filter(Boolean).map(norm);
   if (!toks.length) return [];
-  return catalog.filter((p) => { const h = norm(p.t + ' ' + p.c); return toks.every((t) => h.includes(t)); }).slice(0, 8);
+  const hits = catalog.filter((p) => { const h = norm(p.t + ' ' + p.c); return toks.every((t) => h.includes(t)); });
+  return hits.filter((p) => p.p).slice(0, 6).concat(hits.filter((p) => !p.p).slice(0, 4)); // priced (instant quote) first
 }
 $('q').addEventListener('input', () => {
   const q = $('q').value.trim();
@@ -237,7 +240,9 @@ $('q').addEventListener('input', () => {
     li.innerHTML = '<div class="txt"><span></span><small></small></div>';
     li.prepend(thumbEl(p.i));
     li.querySelector('span').textContent = p.t;
-    li.querySelector('small').textContent = (p.p ? '฿' + baht(p.p) + ' / ' + p.u + (p.c ? ' · ' : '') : '') + (p.c || '');
+    li.querySelector('small').innerHTML = p.p ? '<span class="price">฿' + baht(p.p) + ' / ' + p.u + '</span> · ใบเสนอราคาทันที'
+      : '<span class="ask">สอบถามราคา</span>' + (p.c ? ' · ' : '');
+    if (!p.p && p.c) li.querySelector('small').append(p.c);
     li.onclick = () => addItem(p);
     ul.appendChild(li);
   });
