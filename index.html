@@ -354,11 +354,16 @@ const PREVIEW = new URLSearchParams(location.search).has('preview') || /^(file|d
       api({ action: 'init' }),
     ]);
     if (!me.ok) return fatal('ยืนยันตัวตนไม่สำเร็จ กรุณาปิดแล้วเปิดแบบฟอร์มใหม่');
-    catalog = (me.priced || []).concat(cat.products || []); // priced items (exact, with price) first
+    // One entry per product: priced inventory items carry the website photo (w = website product id),
+    // and that website entry is dropped from search so it doesn't show twice without a price.
+    const priced = me.priced || [];
+    const merged = new Set(priced.map((p) => p.w).filter(Boolean));
+    const site = cat.products || [];
+    catalog = priced.concat(site.filter((p) => !merged.has(p.id)));
     const qs = new URLSearchParams(location.search);
     SOURCE = (qs.get('src') || '').replace(/[^\w-]/g, '').slice(0, 30); // e.g. "shopee-card" from the package QR
     const ids = (qs.get('items') || '').split(',').filter(Boolean);
-    ids.forEach((id) => { const p = catalog.find((x) => x.id === id); if (p) items.push(toItem(p)); });
+    ids.forEach((id) => { const p = site.find((x) => x.id === id); if (p) items.push(toItem(p)); }); // website button pre-fill
     prefill(me.last);
     if (!me.last && me.name) $('name').value = me.name;
     render();
